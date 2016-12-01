@@ -33,8 +33,7 @@
   "homepage": "https://github.com/epsitec-sa/cultura#readme",
   "dependencies": {
     "dateformat": "^1.0.12",
-    "regedit": "^2.2.6",
-    "watt": "^3.3.0"
+    "regedit": "^2.2.6"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
