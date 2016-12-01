@@ -1,6 +1,5 @@
 'use strict';
 
-const watt = require ('watt');
 const os = require ('os');
 const dateFormat = require ('dateformat');
 
@@ -8,7 +7,7 @@ const stdThSep = '<_th_sep_>';
 const stdDecSep = '<_dec_sep_>';
 
 
-const getRegionalSettings = watt (function *(next) {
+function getRegionalSettings (callback) {
   function _getDateOrder(registryConst) {
     switch (registryConst) {
       case 0:
@@ -25,32 +24,33 @@ const getRegionalSettings = watt (function *(next) {
   if (os.platform () === 'win32') {
     const regedit = require ('regedit');
 
-    try {
-      let entries = yield regedit.list ('HKCU\\Control Panel\\International', next);
-      let keys = entries['HKCU\\Control Panel\\International'].values;
+    regedit.list ('HKCU\\Control Panel\\International', (err, entries) => {
+      if (err) {
+        callback ({
+          message: 'cannot retrieve regional settings from registry',
+          inner: err
+        });
+      }
+      else {
+        let keys = entries['HKCU\\Control Panel\\International'].values;
 
-      return {
-        dateSep: keys.sDate.value,
-        dateOrder: _getDateOrder (keys.iDate.value),
-        decimalSep: keys.sDecimal.value,
-        thousandSep: keys.sThousand.value,
-        hourSep: keys.sTime.value,
-        digitsNo: keys.iDigits.value
-      };
-    }
-    catch (err) {
-      throw {
-        message: 'cannot retrieve regional settings from registry',
-        inner: err
-      };
-    }
+        callback (null, {
+          dateSep: keys.sDate.value,
+          dateOrder: _getDateOrder (keys.iDate.value),
+          decimalSep: keys.sDecimal.value,
+          thousandSep: keys.sThousand.value,
+          hourSep: keys.sTime.value,
+          digitsNo: keys.iDigits.value
+        });
+      }
+    });
   }
   else {
-    throw {
+    callback ({
       message: 'operating system unsupported'
-    };
+    });
   }
-});
+}
 
 
 function getDefaultRegionalSettings() {
@@ -67,7 +67,7 @@ function getDefaultRegionalSettings() {
 
 
 function getFormattedDate(date, settings) {
-  if (date == undefined || date === '') {
+  if (!date || date === '') {
     return '';
   }
 
@@ -78,10 +78,9 @@ function getFormattedDate(date, settings) {
 function getFormattedAmount(amount, currency, settings) {
   let _amount = amount || 0;
   let _currency = currency || 'CHF';
-  let sign = amount < 0 ? '-' : '';
   let stdAmount = _amount.toLocaleString('en-US', {minimumFractionDigits: settings.digitsNo}).replace (',', stdThSep).replace ('.', stdDecSep);
 
-  return _currency + ' ' + sign + stdAmount.replace (stdThSep, settings.thousandSep).replace (stdDecSep, settings.decimalSep);
+  return _currency + ' ' + stdAmount.replace (stdThSep, settings.thousandSep).replace (stdDecSep, settings.decimalSep);
 }
 
 
@@ -90,4 +89,3 @@ module.exports.getRegionalSettings = getRegionalSettings;
 module.exports.getDefaultRegionalSettings = getDefaultRegionalSettings;
 module.exports.getFormattedDate = getFormattedDate;
 module.exports.getFormattedAmount = getFormattedAmount;
-
