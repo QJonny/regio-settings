@@ -34,7 +34,7 @@
   "dependencies": {
     "dateformat": "^1.0.12",
     "regedit": "^2.2.6",
-    "watt": "^3.3.0",
+    "watt": "^3.3.0"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
