@@ -28,12 +28,12 @@ describe ('Cultura -> format', function () {
     const settings = getDefaultRegionalSettings ();
     const formattedAmount = getFormattedAmount (-1230.50, 'EUR', settings);
 
-    expect (formattedAmount).to.equal ('CHF -1 230.50');
+    expect (formattedAmount).to.equal ('EUR -1 230.50');
   });
 
   it ('FORMAT_DATE', function () {
     const settings = getDefaultRegionalSettings ();
-    const formattedDate = getFormattedDate (new Date(2016, 5, 20), settings);
+    const formattedDate = getFormattedDate (new Date(2016, 4, 20), settings);
 
     expect (formattedDate).to.equal ('20.05.2016');
   });
