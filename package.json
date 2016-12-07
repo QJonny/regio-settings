@@ -32,7 +32,9 @@
   },
   "homepage": "https://github.com/epsitec-sa/cultura#readme",
   "dependencies": {
-    "dateformat": "^1.0.12",
+    "dateformat": "^1.0.12"
+  },
+  "optionalDependencies": {
     "regedit": "^2.2.6"
   },
   "devDependencies": {
