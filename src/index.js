@@ -8,7 +8,7 @@ const stdDecSep = '<_dec_sep_>';
 
 
 function getRegionalSettings (callback) {
-  function _getDateOrder(registryConst) {
+  function _getDateOrder (registryConst) {
     switch (registryConst) {
       case 0:
         return ['mm', 'dd', 'yyyy'];
@@ -30,8 +30,7 @@ function getRegionalSettings (callback) {
           message: 'cannot retrieve regional settings from registry',
           inner: err
         });
-      }
-      else {
+      } else {
         let keys = entries['HKCU\\Control Panel\\International'].values;
 
         callback (null, {
@@ -56,7 +55,7 @@ function getRegionalSettings (callback) {
 }
 
 
-function getDefaultRegionalSettings() {
+function getDefaultRegionalSettings () {
   return {
     dateSep: '.',
     dateOrder: ['dd', 'mm', 'yyyy'],
@@ -69,19 +68,19 @@ function getDefaultRegionalSettings() {
 
 
 
-function getFormattedDate(date, settings) {
+function getFormattedDate (date, settings) {
   if (!date || date === '') {
     return '';
   }
 
-  return dateFormat(date, settings.dateOrder[0] + settings.dateSep + settings.dateOrder[1] + settings.dateSep + settings.dateOrder[2]);
+  return dateFormat (date, settings.dateOrder[0] + settings.dateSep + settings.dateOrder[1] + settings.dateSep + settings.dateOrder[2]);
 }
 
 
-function getFormattedAmount(amount, currency, settings) {
+function getFormattedAmount (amount, currency, settings) {
   let _amount = amount || 0;
   let _currency = currency || 'CHF';
-  let stdAmount = _amount.toLocaleString('en-US', {minimumFractionDigits: settings.digitsNo}).replace (',', stdThSep).replace ('.', stdDecSep);
+  let stdAmount = _amount.toLocaleString ('en-US', {minimumFractionDigits: settings.digitsNo}).replace (',', stdThSep).replace ('.', stdDecSep);
 
   return _currency + ' ' + stdAmount.replace (stdThSep, settings.thousandSep).replace (stdDecSep, settings.decimalSep);
 }
