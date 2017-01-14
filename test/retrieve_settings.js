@@ -1,12 +1,12 @@
 'use strict';
 
-import {expect} from 'chai';
-import {
+const {expect} = require ('chai');
+const {
   getRegionalSettings,
   getDefaultRegionalSettings,
   getFormattedDate,
   getFormattedAmount
-} from '../src/index.js';
+} = require ('../src/index.js');
 
 
 describe ('Cultura -> retrieve', function () {
