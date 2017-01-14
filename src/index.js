@@ -21,7 +21,7 @@ function getRegionalSettings (callback) {
     }
   }
 
-  if (os.platform () === 'win32') {
+  try {
     const regedit = require ('regedit');
 
     regedit.list ('HKCU\\Control Panel\\International', (err, entries) => {
@@ -44,11 +44,14 @@ function getRegionalSettings (callback) {
         });
       }
     });
-  }
-  else {
-    callback ({
-      message: 'operating system unsupported'
-    });
+  } catch (ex) {
+    if (ex.code === 'MODULE_NOT_FOUND') {
+      callback ({
+        message: `operating system (${os.platform ()}) unsupported`
+      });
+      return;
+    }
+    throw ex;
   }
 }
 
