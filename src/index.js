@@ -31,7 +31,7 @@ function getRegionalSettings (callback) {
           inner: err
         });
       } else {
-        let keys = entries['HKCU\\Control Panel\\International'].values;
+        const keys = entries['HKCU\\Control Panel\\International'].values;
 
         callback (null, {
           dateSep: keys.sDate.value,
@@ -45,12 +45,13 @@ function getRegionalSettings (callback) {
     });
   } catch (ex) {
     if (ex.code === 'MODULE_NOT_FOUND') {
-      callback ({
+      setImmediate (() => callback ({
         message: `operating system (${os.platform ()}) unsupported`
-      });
-      return;
+      }));
     }
-    throw ex;
+    else {
+      setImmediate (() => callback (ex));
+    }
   }
 }
 
