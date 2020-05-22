@@ -6,6 +6,11 @@ const dateFormat = require ('dateformat');
 const stdThSep = '<_th_sep_>';
 const stdDecSep = '<_dec_sep_>';
 
+let externalRegeditVBSLocation = null;
+
+function setRegeditExternalVBSLocation(vbsDirectory) {
+  externalRegeditVBSLocation = vbsDirectory;
+}
 
 function getRegionalSettings (callback) {
   function _getDateOrder (registryConst) {
@@ -23,6 +28,10 @@ function getRegionalSettings (callback) {
 
   try {
     const regedit = require ('regedit');
+
+    if (externalRegeditVBSLocation) {
+      regedit.setExternalVBSLocation(externalRegeditVBSLocation);
+    }
 
     regedit.list ('HKCU\\Control Panel\\International', (err, entries) => {
       if (err) {
@@ -87,7 +96,7 @@ function getFormattedAmount (amount, currency, settings) {
 }
 
 
-
+module.exports.setRegeditExternalVBSLocation = setRegeditExternalVBSLocation;
 module.exports.getRegionalSettings = getRegionalSettings;
 module.exports.getDefaultRegionalSettings = getDefaultRegionalSettings;
 module.exports.getFormattedDate = getFormattedDate;
