@@ -1,6 +1,6 @@
 {
   "name": "cultura",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "formatting dates and numbers according to os settings",
   "engine": {
     "node": ">=4.0.0"
