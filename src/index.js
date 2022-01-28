@@ -1,10 +1,10 @@
-'use strict';
+"use strict";
 
-const os = require ('os');
-const dateFormat = require ('dateformat');
+const os = require("os");
+const dateFormat = require("dateformat");
 
-const stdThSep = '<_th_sep_>';
-const stdDecSep = '<_dec_sep_>';
+const stdThSep = "<_th_sep_>";
+const stdDecSep = "<_dec_sep_>";
 
 let externalRegeditVBSLocation = null;
 
@@ -12,89 +12,101 @@ function setRegeditExternalVBSLocation(vbsDirectory) {
   externalRegeditVBSLocation = vbsDirectory;
 }
 
-function getRegionalSettings (callback) {
-  function _getDateOrder (registryConst) {
+function getRegionalSettings(callback) {
+  function _getDateOrder(registryConst) {
     switch (registryConst) {
       case 0:
-        return ['mm', 'dd', 'yyyy'];
+        return ["mm", "dd", "yyyy"];
       case 1:
-        return ['dd', 'mm', 'yyyy'];
+        return ["dd", "mm", "yyyy"];
       case 2:
-        return ['yyyy', 'mm', 'dd'];
+        return ["yyyy", "mm", "dd"];
       default:
-        return ['dd', 'mm', 'yyyy'];
+        return ["dd", "mm", "yyyy"];
     }
   }
 
   try {
-    const regedit = require ('regedit');
+    const regedit = require("regedit");
 
     if (externalRegeditVBSLocation) {
       regedit.setExternalVBSLocation(externalRegeditVBSLocation);
     }
 
-    regedit.list ('HKCU\\Control Panel\\International', (err, entries) => {
+    regedit.list("HKCU\\Control Panel\\International", (err, entries) => {
       if (err) {
-        callback ({
-          message: 'cannot retrieve regional settings from registry',
-          inner: err
+        callback({
+          message: "cannot retrieve regional settings from registry",
+          inner: err,
         });
       } else {
-        const keys = entries['HKCU\\Control Panel\\International'].values;
+        const keys = entries["HKCU\\Control Panel\\International"].values;
 
-        callback (null, {
+        callback(null, {
           dateSep: keys.sDate.value,
-          dateOrder: _getDateOrder (keys.iDate.value),
+          dateOrder: _getDateOrder(keys.iDate.value),
           decimalSep: keys.sDecimal.value,
           thousandSep: keys.sThousand.value,
           hourSep: keys.sTime.value,
-          digitsNo: keys.iDigits.value
+          digitsNo: keys.iDigits.value,
         });
       }
     });
   } catch (ex) {
-    if (ex.code === 'MODULE_NOT_FOUND') {
-      setImmediate (() => callback ({
-        message: `operating system (${os.platform ()}) unsupported`
-      }));
-    }
-    else {
-      setImmediate (() => callback (ex));
+    if (ex.code === "MODULE_NOT_FOUND") {
+      setImmediate(() =>
+        callback({
+          message: `operating system (${os.platform()}) unsupported`,
+        })
+      );
+    } else {
+      setImmediate(() => callback(ex));
     }
   }
 }
 
-
-function getDefaultRegionalSettings () {
+function getDefaultRegionalSettings() {
   return {
-    dateSep: '.',
-    dateOrder: ['dd', 'mm', 'yyyy'],
-    decimalSep: '.',
-    thousandSep: ' ',
-    hourSep: ':',
-    digitsNo: 2
+    dateSep: ".",
+    dateOrder: ["dd", "mm", "yyyy"],
+    decimalSep: ".",
+    thousandSep: " ",
+    hourSep: ":",
+    digitsNo: 2,
   };
 }
 
-
-
-function getFormattedDate (date, settings) {
-  if (!date || date === '') {
-    return '';
+function getFormattedDate(date, settings) {
+  if (!date || date === "") {
+    return "";
   }
 
-  return dateFormat (date, settings.dateOrder[0] + settings.dateSep + settings.dateOrder[1] + settings.dateSep + settings.dateOrder[2]);
+  return dateFormat(
+    date,
+    settings.dateOrder[0] +
+      settings.dateSep +
+      settings.dateOrder[1] +
+      settings.dateSep +
+      settings.dateOrder[2]
+  );
 }
 
-
-function getFormattedAmount (amount, currency, settings) {
+function getFormattedAmount(amount, currency, settings) {
   let _amount = amount || 0;
-  let _currency = currency || 'CHF';
-  let stdAmount = _amount.toLocaleString ('en-US', {minimumFractionDigits: settings.digitsNo}).replace (',', stdThSep).replace ('.', stdDecSep);
+  let _currency = currency || "CHF";
+  let stdAmount = _amount
+    .toLocaleString("en-US", { minimumFractionDigits: settings.digitsNo })
+    .replaceAll(",", stdThSep)
+    .replace(".", stdDecSep);
 
-  return _currency + ' ' + stdAmount.replace (stdThSep, settings.thousandSep).replace (stdDecSep, settings.decimalSep);
+  return (
+    _currency +
+    " " +
+    stdAmount
+      .replaceAll(stdThSep, settings.thousandSep)
+      .replace(stdDecSep, settings.decimalSep)
+  );
 }
-
 
 module.exports.setRegeditExternalVBSLocation = setRegeditExternalVBSLocation;
 module.exports.getRegionalSettings = getRegionalSettings;
