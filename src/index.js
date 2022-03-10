@@ -93,7 +93,7 @@ function getFormattedDate(date, settings) {
 
 function getFormattedAmount(amount, currency, settings) {
   let _amount = amount || 0;
-  let _currency = currency || "CHF";
+  let _currency = currency ? currency + " " : "";
   let stdAmount = _amount
     .toLocaleString("en-US", { minimumFractionDigits: settings.digitsNo })
     .replaceAll(",", stdThSep)
@@ -101,7 +101,6 @@ function getFormattedAmount(amount, currency, settings) {
 
   return (
     _currency +
-    " " +
     stdAmount
       .replaceAll(stdThSep, settings.thousandSep)
       .replace(stdDecSep, settings.decimalSep)
