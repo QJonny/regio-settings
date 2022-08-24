@@ -6,14 +6,8 @@ const dateFormat = require("dateformat");
 const stdThSep = "<_th_sep_>";
 const stdDecSep = "<_dec_sep_>";
 
-let externalRegeditVBSLocation = null;
-
-function setRegeditExternalVBSLocation(vbsDirectory) {
-  externalRegeditVBSLocation = vbsDirectory;
-}
-
 function getRegionalSettings(callback) {
-  function _getDateOrder(registryConst) {
+  function _getDateOrder(registryConst, defaultSettings) {
     switch (registryConst) {
       case 0:
         return ["mm", "dd", "yyyy"];
@@ -22,36 +16,71 @@ function getRegionalSettings(callback) {
       case 2:
         return ["yyyy", "mm", "dd"];
       default:
-        return ["dd", "mm", "yyyy"];
+        return defaultSettings.dateOrder;
+    }
+  }
+  function _getDigitsNo(iDigits, defaultSettings) {
+    try {
+      return parseInt(iDigits);
+    } catch (err) {
+      return defaultSettings.digitsNo;
     }
   }
 
   try {
-    const regedit = require("regedit");
+    const registry = require("node-windows-registry");
 
-    if (externalRegeditVBSLocation) {
-      regedit.setExternalVBSLocation(externalRegeditVBSLocation);
-    }
+    registry.openKey(
+      "Control Panel\\International",
+      {
+        hive: registry.HKEY_CURRENT_USER,
+      },
+      (err, regKey) => {
+        if (err) {
+          callback({
+            message: "cannot retrieve regional settings from registry",
+            inner: err,
+          });
+        } else {
+          regKey.listValues((err2, values) => {
+            try {
+              regKey.dispose();
+            } catch (err3) {
+              // ignore
+            }
+            if (err2) {
+              callback({
+                message: "cannot retrieve regional settings from registry",
+                inner: err2,
+              });
+            } else {
+              const defaultSettings = getDefaultRegionalSettings();
 
-    regedit.list("HKCU\\Control Panel\\International", (err, entries) => {
-      if (err) {
-        callback({
-          message: "cannot retrieve regional settings from registry",
-          inner: err,
-        });
-      } else {
-        const keys = entries["HKCU\\Control Panel\\International"].values;
-
-        callback(null, {
-          dateSep: keys.sDate.value,
-          dateOrder: _getDateOrder(keys.iDate.value),
-          decimalSep: keys.sDecimal.value,
-          thousandSep: keys.sThousand.value,
-          hourSep: keys.sTime.value,
-          digitsNo: keys.iDigits.value,
-        });
+              callback(null, {
+                dateSep:
+                  values.sDate !== null && values.sDate !== undefined
+                    ? values.sDate
+                    : defaultSettings.dateSep,
+                dateOrder: _getDateOrder(values.iDate, defaultSettings),
+                decimalSep:
+                  values.sDecimal !== null && values.sDecimal !== undefined
+                    ? values.sDecimal
+                    : defaultSettings.decimalSep,
+                thousandSep:
+                  values.sThousand !== null && values.sThousand !== undefined
+                    ? values.sThousand
+                    : defaultSettings.thousandSep,
+                hourSep:
+                  values.sTime !== null && values.sTime !== undefined
+                    ? values.sTime
+                    : defaultSettings.hourSep,
+                digitsNo: _getDigitsNo(values.iDigits, defaultSettings),
+              });
+            }
+          });
+        }
       }
-    });
+    );
   } catch (ex) {
     if (ex.code === "MODULE_NOT_FOUND") {
       setImmediate(() =>
@@ -107,7 +136,6 @@ function getFormattedAmount(amount, currency, settings) {
   );
 }
 
-module.exports.setRegeditExternalVBSLocation = setRegeditExternalVBSLocation;
 module.exports.getRegionalSettings = getRegionalSettings;
 module.exports.getDefaultRegionalSettings = getDefaultRegionalSettings;
 module.exports.getFormattedDate = getFormattedDate;

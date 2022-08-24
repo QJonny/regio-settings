@@ -35,7 +35,7 @@
     "dateformat": "^1.0.12"
   },
   "optionalDependencies": {
-    "regedit": "^3.0.3"
+    "node-windows-registry": "^0.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
